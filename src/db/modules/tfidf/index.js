@@ -31,7 +31,7 @@ const tf = (term, idf) => {
     if (err) throw err;
     const data = results.results;
 
-    console.log(data);
+    console.log("tf", data);
 
     return data.toArray();
   });
@@ -66,8 +66,9 @@ const idf = term => {
   Post.mapReduce(o, function(err, results) {
     if (err) throw err;
     const data = results.results;
+    console.log("idf", data);
     if (data.value.occurrence == 0 || data.value === 0) return;
-    const idf = Math.log(data.value.count / data.value.occurrence);
+    const idf = Math.log(data.value[0].count / data.value[0].occurrence);
     return idf;
   });
 };
@@ -85,7 +86,7 @@ const tfidf = function() {
 
   idf(term, (err, idf) => {
     tf(term, idf, (err, documents) => {
-      console.log(documents);
+      console.log("docs", documents);
     });
   });
 };

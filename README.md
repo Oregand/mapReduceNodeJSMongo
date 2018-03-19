@@ -18,33 +18,11 @@ The main technologies however remain the same for the project as I intended to u
 
 The following is an API reference for mongoDB mapReduce which I followed for this project: [https://docs.mongodb.com/manual/reference/method/db.collection.mapReduce/](<db.collection.mapReduce())
 
-### MongoDB MapReduce API
-
-```js
-/**
- * @name Model.mapReduce
- * @description In this map-reduce operation, MongoDB applies the map phase to each input document (i.e. the documents in the collection that * match the query condition). The map function emits key-value pairs. For those keys that have multiple values, MongoDB applies the reduce
- * phase, which collects and condenses the aggregated data.
- * @param none
- *
- * @returns <Array> {Objects}
- */
-
-Model.mapReduce(
-  map =>
-    function() {
-      emit(this._id, this.Score);
-    },
-  reduce =>
-    function(key, vals) {
-      Array.sum(vals);
-    }
-);
-```
-
 ### Tasks Completed With File Names
 
 * Collect 200,00 Posts from StackExhange: `assets/Query.text`
+
+The collection of data was done using the stack exhange query API. I was able to start by attaining the first 50,000 posts with a view count of `> 58000`, and from there could work backwards until I had a minimum of 200,000 posts with no duplication.
 
 ```mysql
 select count(*) from posts where posts.ViewCount >  58000
@@ -66,8 +44,11 @@ select * from posts where posts.ViewCount> 21500 and posts.ViewCount < 27000
 cat *.csv > mergedQueries.csv
 ```
 
-* Transform data to workable state: `assets/mergedQueries.csv -> mongoDB/posts`(CSV File loader included via UI)
-  * For this task, I used `fast-csv` to stream my CSV file and then transform the data via a schema: `db/models/Post.js` for processing to the mongoDB collection.
+* Transform data to workable state: `assets/mergedQueries.csv -> mongoDB/posts`
+  * First I merged the 4 seperate CSV files using the `cat` command for a single `.csv`
+  * Next, I used `fast-csv` to stream my CSV file and then transform the data via a schema: `db/models/Post.js` for processing to the mongoDB collection.
+  * Once this schema was loaded into my `posts` collection, I was read to start with `mapReduce`.
+  * I also created a small file upload feature through the UI which would allow me to easily upload a new `.csv` to my DB should I need to: `scripts/modules/upload`
 
 ```js
 // create a post schema
@@ -97,6 +78,31 @@ const postSchema = new Schema({
 });
 ```
 
+### MongoDB MapReduce API
+
+```js
+/**
+ * @name Model.mapReduce
+ * @description In this map-reduce operation, MongoDB applies the map phase to each input document (i.e. the documents in the collection that * match the query condition). The map function emits key-value pairs. For those keys that have multiple values, MongoDB applies the reduce
+ * @param none
+ *
+ * @returns <Array> {Objects}
+ */
+
+Model.mapReduce(
+  map =>
+    function() {
+      emit(this._id, this.Score);
+    },
+  reduce =>
+    function(key, vals) {
+      Array.sum(vals);
+    }
+);
+```
+
+#### Please see code appendix for attached functions
+
 * The top 10 posts by score: `db/modules/getTop10Posts`
   * ![Get top 10 posts by post score](/src/assets/img/getTop10PostsByScore.png "Get top 10 posts by post score")
 * The top 10 users by post score: `db/modules/getTop10UsersByScore`
@@ -111,7 +117,7 @@ const postSchema = new Schema({
 
 * Bonus use EMR to execute one or more of these tasks (if so, provide logs / screenshots) (worth 1 extra point per task 2-4, note that the three queries from point 3 are worth 1 point.)
 
-### UI Scaffold
+### UI Scaffold For Uploading New CSV file
 
 ```bash
 yarn install
@@ -132,3 +138,108 @@ yarn run build
 ### MISC
 
 * Results are provided from my current data set with screen shots attahced.
+
+### Code Appendix
+
+```js
+/**
+ * @name getTop10Posts
+ * @description use mapReduce to grab our top 10 posts via Post.Score
+ * @param none
+ *
+ * @returns <fn> {any}
+ */
+const getTop10Posts = function() {
+  var o = {};
+  o.map = function() {
+    emit(this._id, this.Score);
+  };
+  o.reduce = function(k, vals) {
+    const sorted = vals.sort(function(a, b) {
+      return b.value - a.value;
+    });
+
+    const top10 = sorted.slice(0, 10);
+
+    return { top10 };
+  };
+
+  Post.mapReduce(o, function(err, results) {
+    if (err) throw err;
+    const data = results.results;
+    console.log(`Top 10 Posts Sorted By Post.Score ${JSON.stringify(top10)}`);
+  });
+};
+```
+
+```js
+/**
+ * @name getTop10UsersByScore
+ * @description use mapReduce to grab our top 10 users order by Post.Score
+ * @param none
+ *
+ * @returns <fn> {any}
+ */
+const getTop10UsersByScore = function() {
+  var o = {};
+  o.map = function() {
+    emit(this.OwnerUserId, this.Score);
+  };
+  o.reduce = function(k, vals) {
+    return Array.sum(vals);
+  };
+
+  Post.mapReduce(o, function(err, results) {
+    if (err) throw err;
+    const data = results.results;
+
+    const sorted = data.sort(function(a, b) {
+      return b.value - a.value;
+    });
+
+    const top10 = sorted.slice(0, 10);
+
+    console.log(`Top Users Sorted By Post.Score ${JSON.stringify(top10)}`);
+  });
+};
+```
+
+```js
+/**
+ * @name mapHadoop
+ * @description use mapReduce to grab distinct users, who used the word ‘hadoop’ in one of their posts
+ * Performs same query as db.posts.find({"Body" : {$regex : ".*hadoop.*"}}).count(); = 187
+ * @param none
+ *
+ * @returns <fn> {any}
+ */
+const mapHadoop = function() {
+  const o = {};
+
+  o.map = function() {
+    emit({ OwnerUserId: this.OwnerUserId }, { body: this.Body });
+  };
+  o.reduce = function(k, vals) {
+    var count = 0;
+
+    vals.forEach(function(val) {
+      if (val.indexOf("hadoop") !== -1) count++;
+    });
+
+    return { count: count };
+  };
+
+  Post.mapReduce(o, function(err, results) {
+    if (err) throw err;
+    const data = results.results.length;
+
+    // 187
+    console.log(
+      `The number of distinct users, who used the word hadoop in one of their post ${data}`
+    );
+  });
+};
+```
+
+```js
+```
