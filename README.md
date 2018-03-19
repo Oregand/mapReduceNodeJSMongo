@@ -23,7 +23,7 @@ The following is an API reference for mongoDB mapReduce which I followed for thi
   * For this task, I used `fast-csv` to stream my CSV file and then transform the data via a schema: `db/models/Post.js` for processing to the mongoDB collection.
 * The top 10 posts by score: `db/modules/getTop10Posts`
 * The top 10 users by post score: `db/modules/getTop10UsersByScore`
-* The number of distinct users, who used the word ‘hadoop’ in one of their posts: `db/modules/mapHadoop`
+* The number of distinct users, who used the word ‘hadoop’ in one of their posts: `db/modules/mapHadoop` -> `187`
 * Using mapreduce calculate the per-user TF-IDF: `db/modules/tfidf` -> First attempt done using Raw JS(`scripts/modules/tfidf`)
 
 ### Tasks Not Completed:
