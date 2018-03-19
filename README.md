@@ -45,10 +45,60 @@ Model.mapReduce(
 ### Tasks Completed With File Names
 
 * Collect 200,00 Posts from StackExhange: `assets/Query.text`
+
+```mysql
+select count(*) from posts where posts.ViewCount >  58000
+
+select * from posts where posts.ViewCount >  58000
+
+select count(*) from posts where posts.ViewCount> 36000 and posts.ViewCount < 58000
+
+select * from posts where posts.ViewCount> 36000 and posts.ViewCount < 58000
+
+select count(*) from posts where posts.ViewCount> 27000 and posts.ViewCount < 36000
+
+select * from posts where posts.ViewCount> 27000 and posts.ViewCount < 36000
+
+select count(*) from posts where posts.ViewCount> 21500 and posts.ViewCount < 27000
+
+select * from posts where posts.ViewCount> 21500 and posts.ViewCount < 27000
+
+cat *.csv > mergedQueries.csv
+```
+
 * Transform data to workable state: `assets/mergedQueries.csv -> mongoDB/posts`(CSV File loader included via UI)
   * For this task, I used `fast-csv` to stream my CSV file and then transform the data via a schema: `db/models/Post.js` for processing to the mongoDB collection.
+
+```js
+// create a post schema
+const postSchema = new Schema({
+  Id: Number,
+  PostTypeId: Number,
+  AcceptedAnswerId: Number,
+  ParentId: String,
+  CreationDate: String,
+  DeletionDate: String,
+  Score: Number,
+  ViewCount: Number,
+  Body: String,
+  OwnerUserId: Number,
+  OwnerDisplayName: String,
+  LastEditorUserId: String,
+  LastEditorDisplayName: String,
+  LastEditDate: String,
+  LastActivityDate: String,
+  Title: String,
+  Tags: String,
+  AnswerCount: Number,
+  CommentCount: Number,
+  FavoriteCount: Number,
+  ClosedDate: String,
+  CommunityOwnedDate: String
+});
+```
+
 * The top 10 posts by score: `db/modules/getTop10Posts`
-  *
+  * ![Get top 10 posts by post score](/src/assets/img/getTop10PostsByScore.png "Get top 10 posts by post score")
 * The top 10 users by post score: `db/modules/getTop10UsersByScore`
   * ![Get top 10 users by post score](/src/assets/img/getTop10UsersByPostScore.png "Get top 10 users by post score")
 * The number of distinct users, who used the word ‘hadoop’ in one of their posts: `db/modules/mapHadoop`

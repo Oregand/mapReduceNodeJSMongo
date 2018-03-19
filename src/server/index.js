@@ -12,7 +12,7 @@ const tfidf = require('../db/modules/tfidf');
 //getTop10Posts();
 //getTop10UsersByScore();
 //mapHadoop();
-tfidf();
+//tfidf();
 
 connection
   .connect("mongodb://localhost/posts")

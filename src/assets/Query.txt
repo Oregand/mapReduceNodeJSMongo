@@ -1,0 +1,18 @@
+select count(*) from posts where posts.ViewCount >  58000
+
+select * from posts where posts.ViewCount >  58000
+
+select count(*) from posts where posts.ViewCount> 36000 and posts.ViewCount < 58000
+
+select * from posts where posts.ViewCount> 36000 and posts.ViewCount < 58000
+
+select count(*) from posts where posts.ViewCount> 27000 and posts.ViewCount < 36000
+
+select * from posts where posts.ViewCount> 27000 and posts.ViewCount < 36000
+
+select count(*) from posts where posts.ViewCount> 21500 and posts.ViewCount < 27000
+
+select * from posts where posts.ViewCount> 21500 and posts.ViewCount < 27000
+
+
+cat *.csv > mergedQueries.csv

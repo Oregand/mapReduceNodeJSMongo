@@ -10,22 +10,21 @@ const Post = require("../../models/Post");
 const getTop10Posts = function() {
   var o = {};
   o.map = function() {
-    emit("Score", this.Score);
+    emit(this._id, this.Score);
   };
   o.reduce = function(k, vals) {
-    return vals;
+    const sorted = vals.sort(function(a, b) {
+      return b.value - a.value;
+    });
+
+    const top10 = sorted.slice(0, 10);
+
+    return { top10 };
   };
 
   Post.mapReduce(o, function(err, results) {
     if (err) throw err;
     const data = results.results;
-
-    const sorted = data.sort(function(a, b) {
-      return b.value - a.value;
-    });
-    
-    const top10 = sorted.slice(0, 10);
-
     console.log(`Top 10 Posts Sorted By Post.Score ${JSON.stringify(top10)}`);
   });
 };
