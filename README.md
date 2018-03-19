@@ -110,11 +110,11 @@ Model.mapReduce(
 * The number of distinct users, who used the word ‘hadoop’ in one of their posts: `db/modules/mapHadoop`
   * ![Hadoop term distinct users](/src/assets/img/getHadoopDistinctUsers.png "Hadoop term distinct users")
   * Ans: `187`
-* Using mapreduce calculate the per-user TF-IDF: `db/modules/tfidf` -> First attempt done using Raw JS(`scripts/modules/tfidf`)
-  * 
 
 ### Tasks Not Completed
 
+* Using mapreduce calculate the per-user TF-IDF: `db/modules/tfidf` -> First attempt done using Raw JS(`scripts/modules/tfidf`)
+  * Not fully completed. Code attempted but I could not generate a correct result in time.
 * Bonus use EMR to execute one or more of these tasks (if so, provide logs / screenshots) (worth 1 extra point per task 2-4, note that the three queries from point 3 are worth 1 point.)
 
 ### UI Scaffold For Uploading New CSV file
@@ -255,7 +255,6 @@ const mapHadoop = function() {
  * @description Individual word occurance weight
  * @param {any} term
  * @param {any} idf
- * @param {any} callback
  *
  * @returns <fn> {Any}
  */
@@ -287,6 +286,13 @@ const tf = (term, idf) => {
   });
 };
 
+/**
+ * @name idf
+ * @description Individual word occurance weight
+ * @param {any} term
+ *
+ * @returns <Number> {Number}
+ */
 const idf = term => {
   var o = {};
   o.map = function(term) {
@@ -317,7 +323,12 @@ const idf = term => {
     if (err) throw err;
     const data = results.results;
     console.log("idf", data);
-    if (data.value === undefined || data.value === 0 || data.value.occurrence == 0) return;
+    if (
+      data.value === undefined ||
+      data.value === 0 ||
+      data.value.occurrence == 0
+    )
+      return;
     const idf = Math.log(data.value[0].count / data.value[0].occurrence);
     return idf;
   });

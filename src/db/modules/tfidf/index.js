@@ -5,7 +5,6 @@ const Post = require("../../models/Post");
  * @description Individual word occurance weight
  * @param {any} term
  * @param {any} idf
- * @param {any} callback
  *
  * @returns <fn> {Any}
  */
@@ -37,6 +36,13 @@ const tf = (term, idf) => {
   });
 };
 
+/**
+ * @name idf
+ * @description Individual word occurance weight
+ * @param {any} term
+ *
+ * @returns <Number> {Number}
+ */
 const idf = term => {
   var o = {};
   o.map = function(term) {
@@ -67,7 +73,12 @@ const idf = term => {
     if (err) throw err;
     const data = results.results;
     console.log("idf", data);
-    if (data.value === undefined || data.value === 0 || data.value.occurrence == 0) return;
+    if (
+      data.value === undefined ||
+      data.value === 0 ||
+      data.value.occurrence == 0
+    )
+      return;
     const idf = Math.log(data.value[0].count / data.value[0].occurrence);
     return idf;
   });
