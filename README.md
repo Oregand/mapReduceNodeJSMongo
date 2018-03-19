@@ -16,21 +16,50 @@ The main technologies however remain the same for the project as I intended to u
 
 The following is an API reference for mongoDB mapReduce which I followed for this project: [https://docs.mongodb.com/manual/reference/method/db.collection.mapReduce/](<db.collection.mapReduce())
 
+### MongoDB MapReduce API
+
+```js
+/**
+ * @name Model.mapReduce
+ * @description In this map-reduce operation, MongoDB applies the map phase to each input document (i.e. the documents in the collection that * match the query condition). The map function emits key-value pairs. For those keys that have multiple values, MongoDB applies the reduce
+ * phase, which collects and condenses the aggregated data.
+ * @param none
+ *
+ * @returns <Array> {Objects}
+ */
+
+Model.mapReduce(
+  map =>
+    function() {
+      emit(this._id, this.Score);
+    },
+  reduce =>
+    function(key, vals) {
+      Array.sum(vals);
+    }
+);
+```
+
 ### Tasks Completed With File Names
 
 * Collect 200,00 Posts from StackExhange: `assets/Query.text`
 * Transform data to workable state: `assets/mergedQueries.csv -> mongoDB/posts`(CSV File loader included via UI)
   * For this task, I used `fast-csv` to stream my CSV file and then transform the data via a schema: `db/models/Post.js` for processing to the mongoDB collection.
 * The top 10 posts by score: `db/modules/getTop10Posts`
+  * Ans: `187`
 * The top 10 users by post score: `db/modules/getTop10UsersByScore`
-* The number of distinct users, who used the word ‘hadoop’ in one of their posts: `db/modules/mapHadoop` -> `187`
+  * Ans: `187`
+* The number of distinct users, who used the word ‘hadoop’ in one of their posts: `db/modules/mapHadoop`
+  * ![Hadoop term distinct users](/src/assets/img/getHadoopDistinctUsers.png "Hadoop term distinct users")
+  * Ans: `187`
 * Using mapreduce calculate the per-user TF-IDF: `db/modules/tfidf` -> First attempt done using Raw JS(`scripts/modules/tfidf`)
+  * Ans: ``
 
-### Tasks Not Completed:
+### Tasks Not Completed
 
 * Bonus use EMR to execute one or more of these tasks (if so, provide logs / screenshots) (worth 1 extra point per task 2-4, note that the three queries from point 3 are worth 1 point.)
 
-### Installation
+### UI Scaffold
 
 ```bash
 yarn install
@@ -51,4 +80,3 @@ yarn run build
 ### MISC
 
 * Results are provided from my current data set with screen shots attahced.
-*
