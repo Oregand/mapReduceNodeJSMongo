@@ -67,7 +67,7 @@ const idf = term => {
     if (err) throw err;
     const data = results.results;
     console.log("idf", data);
-    if (data.value.occurrence == 0 || data.value === 0) return;
+    if (data.value === undefined || data.value === 0 || data.value.occurrence == 0) return;
     const idf = Math.log(data.value[0].count / data.value[0].occurrence);
     return idf;
   });
