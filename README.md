@@ -6,6 +6,8 @@
 
 I had origonally tried to get a project set up on AWS EMR leveraging spark/a s3 bucket and a simple jar for data processing, but was unable to ssh into my Master/Slave instances and so could not run the needed operations.
 
+![SSH Issue](/src/assets/img/ssh-issue.png "SSH Issue")
+
 Following this, I had turned to Google `dataproc` for running the spark instance, but again could not sucessfully gain ssh access to my cluster.
 
 Given this, I opted to develop a local solution as the given sample set was small enough to run accross a MongoDB replica set -> 1 Master Node && 2 Slave Nodes.
@@ -46,9 +48,9 @@ Model.mapReduce(
 * Transform data to workable state: `assets/mergedQueries.csv -> mongoDB/posts`(CSV File loader included via UI)
   * For this task, I used `fast-csv` to stream my CSV file and then transform the data via a schema: `db/models/Post.js` for processing to the mongoDB collection.
 * The top 10 posts by score: `db/modules/getTop10Posts`
-  * Ans: `187`
+  *
 * The top 10 users by post score: `db/modules/getTop10UsersByScore`
-  * Ans: `187`
+  * ![Get top 10 users by post score](/src/assets/img/getTop10UsersByPostScore.png "Get top 10 users by post score")
 * The number of distinct users, who used the word ‘hadoop’ in one of their posts: `db/modules/mapHadoop`
   * ![Hadoop term distinct users](/src/assets/img/getHadoopDistinctUsers.png "Hadoop term distinct users")
   * Ans: `187`
