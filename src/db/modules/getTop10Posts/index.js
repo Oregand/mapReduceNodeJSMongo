@@ -13,16 +13,18 @@ const getTop10Posts = function() {
     emit("Score", this.Score);
   };
   o.reduce = function(k, vals) {
-    var max = vals[0];
-    vals.forEach(function(val) {
-      if (val > max) max = val;
-    });
-    return max;
+    return vals;
   };
 
   Post.mapReduce(o, function(err, results) {
     if (err) throw err;
     const data = results.results;
+
+    const sorted = data.sort(function(a, b) {
+      return b.value - a.value;
+    });
+    
+    const top10 = sorted.slice(0, 10);
 
     console.log(`Top 10 Posts Sorted By Post.Score ${JSON.stringify(top10)}`);
   });
